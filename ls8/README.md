@@ -61,7 +61,14 @@ but you'll have to implement those three above instructions first!
 
 * Make a list of files here.
 * Write a short 3-10-word description of what each file does.
+1. examples. A list of example outputs from the program depending on the input
+2. cpu.py is the file that defines what size/type programs that can run
+3. ls8 is the file that runs cpu.py
 * Note what has been implemented, and what hasn't.
+implimented:
+    load(), alu(), trace()
+not implimented:
+    self.ram, self.reg, self.pc, ram_read, ram_write, run(), hlt, ldi, prn
 * Read this whole file.
 * Skim the spec.
 
@@ -89,7 +96,7 @@ the `CPU` object.
 `ram_read()` should accept the address to read and return the value stored
 there.
 
-`raw_write()` should accept a value to write, and the address to write it to.
+`ram_write()` should accept a value to write, and the address to write it to.
 
 > Inside the CPU, there are two internal registers used for memory operations:
 > the _Memory Address Register_ (MAR) and the _Memory Data Register_ (MDR). The

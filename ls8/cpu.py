@@ -2,6 +2,10 @@
 
 import sys
 
+LDI = 0b10000010
+PRN = 0b01000111
+MULT = 0b10100010
+HLT = 0b00000001
 class CPU:
     """Main CPU class."""
 
@@ -13,6 +17,12 @@ class CPU:
         self.reg = [0] * 8
         # Process counter -- pc
         self.pc = 0
+        self.branchtable = {}
+        self.branchtable[LDI] = self.handle_LDI
+        self.branchtable[PRN] = self.handle_PRN
+        self.branchtable[MULT] = self.handle_MULT
+        self.branchtable[HLT] = self.handle_HLT
+        self.running = False
 
     def load(self, filename):
         """Load a program into memory."""
@@ -88,29 +98,22 @@ class CPU:
 
     def ram_write(self, MAR, MDR):
         self.ram[MAR] = MDR
-
+    
+    def handle_LDI(self):
+        self.reg[self.ram_read(self.pc + 1)] = self.ram_read(self.pc + 2)
+        self.pc += 3
+    def handle_PRN(self):
+        print(self.reg[self.ram_read(self.pc + 1)])
+        self.pc += 2
+    def handle_MULT(self):
+        self.alu("MULT", self.ram_read(self.pc + 1), self.ram_read(self.pc + 2))
+        self.pc += 3
+    def handle_HLT(self):
+        self.running = False
     def run(self):
         """Run the CPU."""
-        running = True
-        LDI = 0b10000010
-        PRN = 0b01000111
-        MULT = 0b10100010
-        HLT = 0b00000001
-        while running:
-            operand_a = self.ram_read(self.pc + 1)
-            operand_b = self.ram_read(self.pc + 2)
+        self.running = True    
+        while self.running:
             IR = self.ram[self.pc]
-            if IR == LDI:
-                self.reg[operand_a] = operand_b
-                self.pc += 3
-            elif IR == PRN:
-                print(self.reg[operand_a])
-                self.pc += 2
-            elif IR == MULT:
-                self.alu("MULT", operand_a, operand_b)
-                self.pc += 3
-            elif IR == HLT:
-                running = False
-            # else:
-            #     print(f"Unknown Command {IR}")
+            self.branchtable[IR]()
 

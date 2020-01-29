@@ -19,6 +19,7 @@ class CPU:
         self.reg = [0] * 8
         # Process counter -- pc
         self.pc = 0
+        self.sp = 7
         self.branchtable = {}
         self.branchtable[LDI] = self.handle_LDI
         self.branchtable[PRN] = self.handle_PRN
@@ -104,26 +105,37 @@ class CPU:
         self.ram[MAR] = MDR
     
     def handle_LDI(self):
-        self.reg[self.ram_read(self.pc + 1)] = self.ram_read(self.pc + 2)
+        op_a = self.ram_read(self.pc + 1)
+        op_b = self.ram_read(self.pc + 2)
+        self.reg[op_a] = op_b
         self.pc += 3
 
     def handle_PRN(self):
-        print(self.reg[self.ram_read(self.pc + 1)])
+        op_a = self.ram_read(self.pc + 1)
+        print(self.reg[op_a])
         self.pc += 2
 
     def handle_MUL(self):
-        self.alu("MUL", self.ram_read(self.pc + 1), self.ram_read(self.pc + 2))
+        op_a = self.ram_read(self.pc + 1)
+        op_b = self.ram_read(self.pc + 2)
+        self.alu("MUL", op_a, op_b)
         self.pc += 3
 
     def handle_HLT(self):
         self.running = False
 
     def handle_PUSH(self):
-        print('PUSH')
+        print(self.ram)
+        reg_idx = self.ram_read(self.pc + 1)
+        self.reg[self.sp] -= 1
+        self.ram_write(self.reg[self.sp], self.reg[reg_idx])
         self.pc += 2
 
     def handle_POP(self):
-        print('POP')
+        print(self.ram)
+        reg_idx = self.ram_read(self.pc + 1)
+        self.reg[reg_idx] = self.ram_read(self.reg[self.sp])
+        self.reg[self.sp] += 1
         self.pc += 2
 
     def run(self):
@@ -132,21 +144,3 @@ class CPU:
         while self.running:
             IR = self.ram[self.pc]
             self.branchtable[IR]()
-
-
-            # IR = self.ram[self.pc]
-            # operand_a = self.ram_read(self.pc + 1)
-            # operand_b = self.ram_read(self.pc + 2)
-            # if IR == LDI:
-            #     self.reg[operand_a] = operand_b
-            #     self.pc += 3
-            # elif IR == PRN:
-            #     print(self.reg[operand_a])
-            #     self.pc += 2
-            # elif IR == MULT:
-            #     self.alu("MULT", operand_a, operand_b)
-            #     self.pc += 3
-            # elif IR == HLT:
-            #     running = False
-            # else:
-            #     print(f"Unknown Command {IR}")

@@ -13,5 +13,6 @@ if len(sys.argv) != 2:
 cpu = CPU()
 
 cpu.load(sys.argv[1])
+print(cpu.ram)
 cpu.run()
 cpu.trace()
